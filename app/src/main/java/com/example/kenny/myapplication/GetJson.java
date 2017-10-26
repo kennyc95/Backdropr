@@ -40,7 +40,6 @@ public class GetJson{
     public ArrayList<image> partTwo(){
 
         if(isSearch==false) {
-            System.out.println("HOla2");
             try {
                 readMessageArray(reader);
             } catch (IOException e) {

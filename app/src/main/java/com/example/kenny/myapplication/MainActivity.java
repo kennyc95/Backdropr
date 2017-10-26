@@ -1,15 +1,19 @@
 package com.example.kenny.myapplication;
-
+import com.example.kenny.myapplication.getWords;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -36,11 +40,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    ArrayList picList;
-    RecyclerAdapter madapter;
-    RecyclerView recyclerView;
-    Activity activity;
-    ImageView image;
+    private ArrayList picList;
+    private RecyclerAdapter madapter;
+    private RecyclerView recyclerView;
+    private Activity activity;
+    private ImageView image;
+    private SimpleCursorAdapter mAdapter;
+    private String myQuery;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +72,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         String tourl = "https://api.unsplash.com/photos/?per_page=5&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
                 "2f10d87341c63fecafd0776851";
-        TextView text = (TextView)findViewById(R.id.text);
-        text.setText("hola bitches im alive");
+
         MyTaskParams params = new MyTaskParams(false,tourl);
 
         recyclerView = (RecyclerView)findViewById(R.id.rvNumbers);
@@ -105,6 +110,7 @@ public class MainActivity extends AppCompatActivity
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
             @Override
             public boolean onQueryTextSubmit(String queryText) {
                 TextView text = (TextView)findViewById(R.id.text);
@@ -155,6 +161,58 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final SearchView mSearchView;
+        mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.search));
+        final String[] from = new String[] {"words"};
+        final int[] to = new int[] {android.R.id.text1};
+        mAdapter = new SimpleCursorAdapter(this,
+                android.R.layout.simple_list_item_1,
+                null,
+                from,
+                to,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        mSearchView.setSuggestionsAdapter(mAdapter);
+        mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionClick(int position) {
+                return true;
+            }
+
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return true;
+            }
+        });
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                return false;
+            }
+
+            private StringBuilder sb = new StringBuilder();
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                myQuery = newText;
+                getWordsTask task;
+                sb.delete(0,sb.length());
+                sb.append("https://api.datamuse.com/sug?s=");
+                sb.append(newText);
+                sb.append("&max=3");
+                task = new getWordsTask(getApplicationContext());
+                task.execute(sb.toString());
+
+                return true;
+            }
+        });
+        return super.onPrepareOptionsMenu(menu);
+    }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -267,5 +325,59 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
+    public class getWordsTask extends AsyncTask<String,ArrayList<String>,ArrayList<String>> {
+        private Context context;
+        public getWordsTask(Context context){
+            this.context = context;
+        }
+
+        @Override
+        protected ArrayList<String> doInBackground(String... params) {
+            HttpURLConnection connection = null;
+            JsonReader reader = null;
+            URL urlConnection;
+            try {
+                urlConnection = new URL(params[0]);
+                connection = (HttpURLConnection)urlConnection.openConnection();
+                InputStream stream = connection.getInputStream();
+                reader = new JsonReader(new InputStreamReader(stream));
+                return getWords.readWordArray(reader);
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally{
+                if(connection!=null){
+                    connection.disconnect();
+                }
+                if(reader!=null){
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> result) {
+            super.onPostExecute(result);
+            String [] words = result.toArray(new String[result.size()]);
+            final MatrixCursor c = new MatrixCursor(new String[]{ BaseColumns._ID, "words" });
+            for (int i=0; i<words.length; i++) {
+                if (words[i].toLowerCase().startsWith(myQuery.toLowerCase())){
+                    c.addRow(new Object[] {i, words[i]});
+                }
+            }
+            mAdapter.changeCursor(c);
+            mAdapter.notifyDataSetChanged();
+
+        }
+    }
+
 
 }
