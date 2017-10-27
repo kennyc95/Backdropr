@@ -29,6 +29,7 @@ public class getWords {
             String name = reader.nextName();
            if(name.equals("word")){
                text =reader.nextString();
+               Log.e("tag" ,text);
             }else {
                 reader.skipValue();
             }

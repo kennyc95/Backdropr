@@ -18,6 +18,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.JsonReader;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private Activity activity;
     private ImageView image;
-    private SimpleCursorAdapter mAdapter;
+    private SimpleCursorAdapter mSAdapter;
     private String myQuery;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        String tourl = "https://api.unsplash.com/photos/?per_page=5&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
+        String tourl = "https://api.unsplash.com/photos/?per_page=30&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
                 "2f10d87341c63fecafd0776851";
 
         MyTaskParams params = new MyTaskParams(false,tourl);
@@ -78,7 +79,6 @@ public class MainActivity extends AppCompatActivity
         recyclerView = (RecyclerView)findViewById(R.id.rvNumbers);
         activity = this;
         int numberOfColumns = 2;
-        int number_of_pics = 3;
         recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), numberOfColumns));
         RecyclerAdapter madapter = new RecyclerAdapter(getApplicationContext(), picList,recyclerView, this);
         recyclerView.setAdapter(madapter);
@@ -113,14 +113,6 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextSubmit(String queryText) {
-                TextView text = (TextView)findViewById(R.id.text);
-                text.setText(queryText);
-                //GetJson getJson = new GetJson(queryText);
-                ImageLoadTask task;
-                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=5&page=1&query="+queryText;
-                MyTaskParams params = new MyTaskParams(true,url);
-                task = new ImageLoadTask(getApplicationContext(),image);
-                task.execute(params);
                 return true;
             }
 
@@ -167,17 +159,25 @@ public class MainActivity extends AppCompatActivity
         mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.search));
         final String[] from = new String[] {"words"};
         final int[] to = new int[] {android.R.id.text1};
-        mAdapter = new SimpleCursorAdapter(this,
+        mSAdapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_1,
                 null,
                 from,
                 to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
-        mSearchView.setSuggestionsAdapter(mAdapter);
+        mSearchView.setSuggestionsAdapter(mSAdapter);
         mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionClick(int position) {
+                MatrixCursor temp = (MatrixCursor) mSAdapter.getItem(position);
+                myQuery = temp.getString(temp.getColumnIndex("words"));
+                Log.v("tag0",myQuery);
+                ImageLoadTask task;
+                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
+                MyTaskParams params = new MyTaskParams(true,url);
+                task = new ImageLoadTask(getApplicationContext(),image);
+                task.execute(params);
                 return true;
             }
 
@@ -191,7 +191,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-                return false;
+
+
+
+                ImageLoadTask task;
+                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+query;
+                MyTaskParams params = new MyTaskParams(true,url);
+                task = new ImageLoadTask(getApplicationContext(),image);
+                task.execute(params);
+                return true;
             }
 
             private StringBuilder sb = new StringBuilder();
@@ -203,7 +211,7 @@ public class MainActivity extends AppCompatActivity
                 sb.delete(0,sb.length());
                 sb.append("https://api.datamuse.com/sug?s=");
                 sb.append(newText);
-                sb.append("&max=3");
+                sb.append("&max=5");
                 task = new getWordsTask(getApplicationContext());
                 task.execute(sb.toString());
 
@@ -373,8 +381,8 @@ public class MainActivity extends AppCompatActivity
                     c.addRow(new Object[] {i, words[i]});
                 }
             }
-            mAdapter.changeCursor(c);
-            mAdapter.notifyDataSetChanged();
+            mSAdapter.changeCursor(c);
+            mSAdapter.notifyDataSetChanged();
 
         }
     }

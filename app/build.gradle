@@ -30,3 +30,4 @@ dependencies {
     compile 'com.jsibbold:zoomage:1.1.0'
     testCompile 'junit:junit:4.12'
 }
+apply plugin: 'com.google.gms.google-services'
