@@ -27,13 +27,15 @@
 
     <style name="myDropDownItemStyle" parent="Widget.AppCompat.DropDownItem.Spinner">
         <item name="android:textColor">@color/secondary_text_default_material_light</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">14dp</item>x`
     </style>
 
     <style name="myDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
         <item name="android:background">#FFF</item>
     </style>
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@drawable/common_google_signin_btn_icon_dark</item>
+        <item name="android:windowBackground">@drawable/layout</item>
     </style>
+
+
 </resources>
