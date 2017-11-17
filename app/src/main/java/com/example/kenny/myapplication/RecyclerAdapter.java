@@ -30,9 +30,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private boolean isLoading;
     private Activity activity;
     private OnLoadMoreListener onLoadMoreListener;
-    public static final String URL = "URL";
-    public static final String NAME = "NAME";
-    public static final String LRG = "LRG";
     public RecyclerAdapter(Context context, ArrayList data, RecyclerView recyclerView, Activity activity) {
         this.mInflater = LayoutInflater.from(context);
         //if(data.get(0).get_author())
@@ -61,9 +58,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         // viewHolder.myImageView.setText(animal);
     }
 
-
-
-
     @Override
     public int getItemCount() {
         if(mData == null){
@@ -90,10 +84,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
     public void onItemClick(View view, int position) {
         Intent intent = new Intent(mContext, DisplayImage.class);
-        intent.putExtra(URL,getItem(position).getImageUrl());
-        intent.putExtra(NAME,getItem(position).get_author());
-        intent.putExtra(LRG,getItem(position).get_large());
+        intent.putExtra("URL",getItem(position).getImageUrl());
+        intent.putExtra("NAME",getItem(position).get_author());
+        intent.putExtra("LRG",getItem(position).get_large());
+        intent.putExtra("COLOR",getItem(position).get_color());
         mContext.startActivity(intent);
-        System.out.println(getItem(position));
     }
 }

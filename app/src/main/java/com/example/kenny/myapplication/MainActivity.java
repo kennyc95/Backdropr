@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 return true;
             }
         });
@@ -173,6 +172,7 @@ public class MainActivity extends AppCompatActivity
                 MatrixCursor temp = (MatrixCursor) mSAdapter.getItem(position);
                 myQuery = temp.getString(temp.getColumnIndex("words"));
                 Log.v("tag0",myQuery);
+                mSearchView.setQuery(myQuery,true);
                 ImageLoadTask task;
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
                 MyTaskParams params = new MyTaskParams(true,url);
@@ -190,10 +190,7 @@ public class MainActivity extends AppCompatActivity
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
-
-
-
+                mSearchView.clearFocus();
                 ImageLoadTask task;
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+query;
                 MyTaskParams params = new MyTaskParams(true,url);
@@ -259,31 +256,17 @@ public class MainActivity extends AppCompatActivity
         protected ArrayList doInBackground(MyTaskParams... params) {
             HttpURLConnection connection = null;
             JsonReader reader = null;
-            URL urlConnection = null;
+            URL urlConnection;
             ArrayList jsonUrl = new ArrayList(0);
             boolean isSearch = params[0].search;
             String url = params[0].url;
-            //System.out.println(url);
             try {
                 urlConnection = new URL(url);
-
-
                 connection = (HttpURLConnection)urlConnection.openConnection();
-
                 InputStream stream = connection.getInputStream();
-
                 reader = new JsonReader(new InputStreamReader(stream));
-                //if(params[0].length()<=118){
                 GetJson getJson = new GetJson(reader,isSearch);
                 return getJson.partTwo();
-                //}
-                //else{
-                //readResultsArray(reader);
-                //}
-
-
-
-                //return urlObj.get
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -309,16 +292,11 @@ public class MainActivity extends AppCompatActivity
         protected void onPostExecute(ArrayList result) {
             super.onPostExecute(result);
 
-           //image myimage = (image)result.get(0);
-           // if(!myimage.get_author().equals("")){
             if(!result.isEmpty())
             {
                 madapter = new RecyclerAdapter(getApplicationContext(), result, recyclerView, activity);
                 recyclerView.setAdapter(madapter);
             }
-
-            //}
-
 
         }
     }

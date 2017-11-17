@@ -24,9 +24,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".DisplayImage"
-            android:parentActivityName=".MainActivity" >
-
-
+            android:theme="@style/DisplayImage"
+            >
         </activity>
         <activity
             android:name=".SplashActivity"
@@ -37,10 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GetJson"
-            android:parentActivityName=".MainActivity" >
 
-        </activity>
 
 
 
