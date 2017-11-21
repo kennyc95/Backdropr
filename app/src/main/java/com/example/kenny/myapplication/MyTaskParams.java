@@ -5,4 +5,11 @@ package com.example.kenny.myapplication;
  */
 
 public class MyTaskParams {
+    boolean search;
+    String url;
+    MyTaskParams(boolean search, String url) {
+        this.search = search;
+        this.url = url;
+
+    }
 }

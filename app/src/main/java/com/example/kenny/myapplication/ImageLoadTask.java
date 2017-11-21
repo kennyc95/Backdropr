@@ -19,103 +19,72 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import com.example.kenny.myapplication.MainActivity;
+import com.google.android.gms.tasks.Task;
 
 /**
  * Created by kenny on 2017-11-17.
  */
 
-public class ImageLoadTask extends AppCompatActivity{
-    private RecyclerAdapter madapter;
-    private RecyclerView recyclerView;
-    private ArrayList picList;
-    private ImageView image;
+
+public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList,ArrayList> {
+    private Context context;
+    private ImageView imageView;
+    private TaskComplete callback;
+
+    public ImageLoadTask(Context context,ImageView imageView){
+        this.context = context;
+        this.imageView = imageView;
+        this.callback = (TaskComplete) context;
+    }
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Activity activity = this;
-        int numberOfColumns = 2;
-        recyclerView = (RecyclerView)findViewById(R.id.rvNumbers);
-        recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), numberOfColumns));
-        RecyclerAdapter madapter = new RecyclerAdapter(getApplicationContext(), picList,recyclerView, this);
-        recyclerView.setAdapter(madapter);
-        Intent intent = this.getIntent();
-        Bundle args = intent.getExtras();
-        boolean isSearch = args.getBoolean("boolean");
-        String url = args.getString("url");
-        MyTaskParams params = new MyTaskParams(isSearch,url);
-        ImageLoadTask task;
-        task = new ImageLoadTask(getApplicationContext(),image);
-        task.execute(params);
-    }
+    protected ArrayList doInBackground(MyTaskParams... params) {
+        HttpURLConnection connection = null;
+        JsonReader reader = null;
+        URL urlConnection;
+        ArrayList jsonUrl = new ArrayList(0);
+        boolean isSearch = params[0].search;
+        String url = params[0].url;
+        try {
+            urlConnection = new URL(url);
+            connection = (HttpURLConnection)urlConnection.openConnection();
+            InputStream stream = connection.getInputStream();
+            reader = new JsonReader(new InputStreamReader(stream));
+            GetJson getJson = new GetJson(reader,isSearch);
+            return getJson.partTwo();
 
-    public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList,ArrayList> {
-        private Context context;
-        private ImageView imageView;
-
-        public ImageLoadTask(Context context,ImageView imageView){
-            this.context = context;
-            this.imageView = imageView;
-        }
-
-        @Override
-        protected ArrayList doInBackground(MyTaskParams... params) {
-            HttpURLConnection connection = null;
-            JsonReader reader = null;
-            URL urlConnection;
-            ArrayList jsonUrl = new ArrayList(0);
-            boolean isSearch = params[0].search;
-            String url = params[0].url;
-            try {
-                urlConnection = new URL(url);
-                connection = (HttpURLConnection)urlConnection.openConnection();
-                InputStream stream = connection.getInputStream();
-                reader = new JsonReader(new InputStreamReader(stream));
-                GetJson getJson = new GetJson(reader,isSearch);
-                return getJson.partTwo();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally{
-                if(connection!=null){
-                    connection.disconnect();
-                }
-                if(reader!=null){
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally{
+            if(connection!=null){
+                connection.disconnect();
+            }
+            if(reader!=null){
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-            return null;
         }
 
-        @Override
-        protected void onPostExecute(ArrayList result) {
-            super.onPostExecute(result);
-
-            if(!result.isEmpty())
-            {
-
-                madapter = new RecyclerAdapter(getApplicationContext(), result, recyclerView,(Activity)getApplicationContext());
-                recyclerView.setAdapter(madapter);
-            }
-
-        }
+        return null;
     }
 
-    private static class MyTaskParams {
-        boolean search;
+    @Override
+    protected void onPostExecute(ArrayList result) {
+        super.onPostExecute(result);
 
-        String url;
-
-        MyTaskParams(boolean search, String url) {
-            this.search = search;
-            this.url = url;
-
+        if(!result.isEmpty())
+        {
+           callback.onTaskComplete(result);
         }
+
     }
+
+
 }
+
