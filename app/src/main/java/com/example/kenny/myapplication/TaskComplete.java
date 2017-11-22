@@ -7,5 +7,5 @@ import java.util.ArrayList;
  */
 
 public interface TaskComplete {
-    public void onTaskComplete(ArrayList picList);
+    public void onTaskComplete(ArrayList<image> picList);
 }

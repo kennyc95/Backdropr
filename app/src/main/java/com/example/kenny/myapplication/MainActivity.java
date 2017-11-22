@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,TaskComplete {
-    private ArrayList picList;
+    private ArrayList<image> picList;
     private RecyclerAdapter madapter;
     private RecyclerView recyclerView;
     public Activity activity;
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        picList = new ArrayList<>();
 
         recyclerView = (RecyclerView)findViewById(R.id.rvNumbers);
         activity = this;
@@ -116,19 +116,21 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
         });
-
-        MenuItemCompat.OnActionExpandListener expandListener = new MenuItemCompat.OnActionExpandListener() {
+        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
-            public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                return true;
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                madapter = new RecyclerAdapter(getApplicationContext(), picList, recyclerView, activity);
+                recyclerView.setAdapter(madapter);
+                return true;  // Return true to collapse action view
             }
 
             @Override
-            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-
-                return true;
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                // Do something when expanded
+                return true;  // Return true to expand action view
             }
-        };
+        });
+
         //MenuItemCompat.setOnActionExpandListener(searchItem, expandListener);
         return super.onCreateOptionsMenu(menu);
     }
@@ -159,7 +161,6 @@ public class MainActivity extends AppCompatActivity
                 from,
                 to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
         mSearchView.setSuggestionsAdapter(mSAdapter);
         mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
@@ -206,6 +207,8 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
         });
+
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -236,7 +239,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onTaskComplete(ArrayList picList) {
+    public void onTaskComplete(ArrayList<image> picList) {
+        if(this.picList.isEmpty()){
+            this.picList = picList;
+        }
         madapter = new RecyclerAdapter(getApplicationContext(), picList, recyclerView, this);
         recyclerView.setAdapter(madapter);
     }

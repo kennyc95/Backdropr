@@ -27,7 +27,7 @@ import com.google.android.gms.tasks.Task;
  */
 
 
-public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList,ArrayList> {
+public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,ArrayList<image>> {
     private Context context;
     private ImageView imageView;
     private TaskComplete callback;
@@ -75,7 +75,7 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList,ArrayList> {
     }
 
     @Override
-    protected void onPostExecute(ArrayList result) {
+    protected void onPostExecute(ArrayList<image> result) {
         super.onPostExecute(result);
 
         if(!result.isEmpty())
