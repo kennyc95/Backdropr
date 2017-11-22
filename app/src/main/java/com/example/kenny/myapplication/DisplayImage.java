@@ -29,6 +29,8 @@ public class DisplayImage extends AppCompatActivity {
         Picasso mPicasso = Picasso.with(this);
         mPicasso.setIndicatorsEnabled(true);
         mPicasso.load(url)
+                .fit()
+                .centerCrop()
                 .into(imageData);
         TextView textData = (TextView)findViewById(R.id.author);
         textData.setText(intent.getStringExtra("NAME"));

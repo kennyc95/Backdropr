@@ -99,8 +99,36 @@ public class MainActivity extends AppCompatActivity
         MenuItem searchItem = menu.findItem(R.id.search);
         final SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
+        final SearchView searchView =
                 (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        final String[] from = new String[] {"words"};
+        final int[] to = new int[] {android.R.id.text1};
+        mSAdapter = new SimpleCursorAdapter(this,
+                android.R.layout.simple_list_item_1,
+                null,
+                from,
+                to,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        searchView.setSuggestionsAdapter(mSAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionClick(int position) {
+                MatrixCursor temp = (MatrixCursor) mSAdapter.getItem(position);
+                myQuery = temp.getString(temp.getColumnIndex("words"));
+                Log.v("tag0",myQuery);
+                searchView.setQuery(myQuery,true);
+                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
+                MyTaskParams params = new MyTaskParams(true,url);
+                new ImageLoadTask(MainActivity.this,image).execute(params);
+                return true;
+            }
+
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return true;
+            }
+        });
 
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
@@ -108,14 +136,28 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextSubmit(String queryText) {
+                searchView.clearFocus();
+                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+queryText;
+                MyTaskParams params = new MyTaskParams(true,url);
+                new ImageLoadTask(MainActivity.this,image).execute(params);
                 return true;
             }
-
+            private StringBuilder sb = new StringBuilder();
             @Override
             public boolean onQueryTextChange(String newText) {
+                myQuery = newText;
+                getWordsTask task;
+                sb.delete(0,sb.length());
+                sb.append("https://api.datamuse.com/sug?s=");
+                sb.append(newText);
+                sb.append("&max=5");
+                task = new getWordsTask(getApplicationContext());
+                task.execute(sb.toString());
                 return true;
             }
         });
+
+
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
@@ -151,64 +193,6 @@ public class MainActivity extends AppCompatActivity
     }
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final SearchView mSearchView;
-        mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.search));
-        final String[] from = new String[] {"words"};
-        final int[] to = new int[] {android.R.id.text1};
-        mSAdapter = new SimpleCursorAdapter(this,
-                android.R.layout.simple_list_item_1,
-                null,
-                from,
-                to,
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        mSearchView.setSuggestionsAdapter(mSAdapter);
-        mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionClick(int position) {
-                MatrixCursor temp = (MatrixCursor) mSAdapter.getItem(position);
-                myQuery = temp.getString(temp.getColumnIndex("words"));
-                Log.v("tag0",myQuery);
-                mSearchView.setQuery(myQuery,true);
-                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
-                MyTaskParams params = new MyTaskParams(true,url);
-                new ImageLoadTask(MainActivity.this,image).execute(params);
-                return true;
-            }
-
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return true;
-            }
-        });
-
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                mSearchView.clearFocus();
-                String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+query;
-                MyTaskParams params = new MyTaskParams(true,url);
-                new ImageLoadTask(MainActivity.this,image).execute(params);
-                return true;
-            }
-
-            private StringBuilder sb = new StringBuilder();
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                myQuery = newText;
-                getWordsTask task;
-                sb.delete(0,sb.length());
-                sb.append("https://api.datamuse.com/sug?s=");
-                sb.append(newText);
-                sb.append("&max=5");
-                task = new getWordsTask(getApplicationContext());
-                task.execute(sb.toString());
-
-                return true;
-            }
-        });
-
-
         return super.onPrepareOptionsMenu(menu);
     }
 
