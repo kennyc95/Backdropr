@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.JsonReader;
+import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,Array
 
     @Override
     protected ArrayList doInBackground(MyTaskParams... params) {
+
         HttpURLConnection connection = null;
         JsonReader reader = null;
         URL urlConnection;
@@ -77,12 +79,7 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,Array
     @Override
     protected void onPostExecute(ArrayList<image> result) {
         super.onPostExecute(result);
-
-        if(!result.isEmpty())
-        {
-           callback.onTaskComplete(result);
-        }
-
+        callback.onTaskComplete(result);
     }
 
 

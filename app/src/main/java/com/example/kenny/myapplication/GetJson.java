@@ -68,7 +68,6 @@ public class GetJson{
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
-            Log.e("hola4535",": "+name);
             if (name.equals("photos")) {
                 readPhotos(reader);
             }else{
@@ -83,7 +82,6 @@ public class GetJson{
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
-            Log.e("hola4535",": "+name);
             if (name.equals("results")) {
                 readMessageArray(reader);
             }else{
@@ -108,7 +106,6 @@ public class GetJson{
             else if (name.equals("user")) {
 
                 text = readUser(reader);
-                Log.e("kenny","isSearch " + text);
                 myImage.set_author(text);
             }else if(name.equals("color")){
                 text = reader.nextString();

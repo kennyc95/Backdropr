@@ -27,6 +27,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.github.chrisbanes.photoview.PhotoView;
+import com.github.chrisbanes.photoview.PhotoViewAttacher;
+import com.wang.avi.AVLoadingIndicatorView;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,13 +48,14 @@ public class MainActivity extends AppCompatActivity
     private ImageView image;
     private SimpleCursorAdapter mSAdapter;
     private String myQuery;
+    private  AVLoadingIndicatorView avi;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        avi = (AVLoadingIndicatorView)findViewById(R.id.avi);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,14 +81,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
 
+            super.onBackPressed();
+
+    }
+    public void onLongClick(){
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity
                 searchView.setQuery(myQuery,true);
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
                 MyTaskParams params = new MyTaskParams(true,url);
+                avi.show();
                 new ImageLoadTask(MainActivity.this,image).execute(params);
                 return true;
             }
@@ -131,6 +136,7 @@ public class MainActivity extends AppCompatActivity
                 searchView.clearFocus();
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+queryText;
                 MyTaskParams params = new MyTaskParams(true,url);
+                avi.show();
                 new ImageLoadTask(MainActivity.this,image).execute(params);
                 return true;
             }
@@ -155,6 +161,8 @@ public class MainActivity extends AppCompatActivity
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 madapter = new RecyclerAdapter(getApplicationContext(), picList, recyclerView, activity);
                 recyclerView.setAdapter(madapter);
+                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
                 return true;  // Return true to collapse action view
             }
 
@@ -171,6 +179,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTaskComplete(ArrayList<image> picList) {
+        avi.hide();
         if(this.picList.isEmpty()){
             this.picList = picList;
         }
@@ -227,9 +236,18 @@ public class MainActivity extends AppCompatActivity
             }
             mSAdapter.changeCursor(c);
             mSAdapter.notifyDataSetChanged();
-
         }
     }
 
+    //PhotoView imageDatas = (PhotoView) findViewById(R.id.full_image);
+
+    //imageDatas.OnLongClickListener
+    /*imageData.setOnLongClickListener(new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+
+            return true;
+        }
+    });*/
 
 }
