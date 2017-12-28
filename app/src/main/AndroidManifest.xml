@@ -28,6 +28,12 @@
             android:theme="@style/DisplayImage"
             >
         </activity>
+        <activity android:name=".RecyclerAdapter"
+
+            android:theme="@style/DisplayImage"
+            >
+        </activity>
+
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">

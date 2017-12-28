@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder>{
     private ArrayList mData;
-
+    private additionalInfo info;
     private LayoutInflater mInflater;
     private Context mContext;
 
@@ -52,7 +52,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         viewHolder.myImageView.setBackgroundColor(Color.parseColor(((image)mData.get(i)).get_color()));
         Picasso mPicasso = Picasso.with(mContext);
         mPicasso.setIndicatorsEnabled(true);
-        mPicasso.load(((image)mData.get(i)).getImageUrl())
+        mPicasso.load(((image)mData.get(i)).get_ImageUrl())
                 .into(viewHolder.myImageView);
 
         // viewHolder.myImageView.setText(animal);
@@ -84,10 +84,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
     public void onItemClick(View view, int position) {
         Intent intent = new Intent(mContext, DisplayImage.class);
-        intent.putExtra("URL",getItem(position).getImageUrl());
+        intent.putExtra("URL",getItem(position).get_ImageUrl());
         intent.putExtra("NAME",getItem(position).get_author());
         intent.putExtra("LRG",getItem(position).get_large());
+        intent.putExtra("LIKES",getItem(position).get_likes());
         intent.putExtra("COLOR",getItem(position).get_color());
+        intent.putExtra("ID",getItem(position).get_id());
         mContext.startActivity(intent);
     }
+
 }

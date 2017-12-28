@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
                 "2f10d87341c63fecafd0776851";
 
         MyTaskParams params = new MyTaskParams(false,tourl);
-        new ImageLoadTask(MainActivity.this,image).execute(params);
+        new ImageLoadTask(MainActivity.this).execute(params);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
                 MyTaskParams params = new MyTaskParams(true,url);
                 avi.show();
-                new ImageLoadTask(MainActivity.this,image).execute(params);
+                new ImageLoadTask(MainActivity.this).execute(params);
                 return true;
             }
 
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+queryText;
                 MyTaskParams params = new MyTaskParams(true,url);
                 avi.show();
-                new ImageLoadTask(MainActivity.this,image).execute(params);
+                new ImageLoadTask(MainActivity.this).execute(params);
                 return true;
             }
             private StringBuilder sb = new StringBuilder();

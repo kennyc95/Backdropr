@@ -1,16 +1,8 @@
 package com.example.kenny.myapplication;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.JsonReader;
-import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -20,40 +12,37 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import com.example.kenny.myapplication.MainActivity;
-import com.google.android.gms.tasks.Task;
 
 /**
- * Created by kenny on 2017-11-17.
+ * Created by kenny on 2017-12-27.
  */
 
 
-public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,ArrayList<image>> {
-    private Context context;
-    private TaskComplete callback;
 
-    public ImageLoadTask(Context context){
+public class getAdditionalInfo extends AsyncTask<String,additionalInfo,additionalInfo> {
+    private Context context;
+
+    private additionalComplete callback;
+
+    public getAdditionalInfo(Context context){
         this.context = context;
-        this.callback = (TaskComplete) context;
+        this.callback = (additionalComplete) context;
     }
 
     @Override
-    protected ArrayList doInBackground(MyTaskParams... params) {
+    protected additionalInfo doInBackground(String... params) {
 
         HttpURLConnection connection = null;
         JsonReader reader = null;
         URL urlConnection;
-        ArrayList jsonUrl = new ArrayList(0);
-        boolean isSearch = params[0].search;
-        String url = params[0].url;
+        String url = params[0];
         try {
             urlConnection = new URL(url);
             connection = (HttpURLConnection)urlConnection.openConnection();
             InputStream stream = connection.getInputStream();
             reader = new JsonReader(new InputStreamReader(stream));
-            GetJson getJson = new GetJson(reader,isSearch);
-            Log.e("fuckme",reader.toString());
-            return getJson.partTwo();
+            GetJson getJson = new GetJson(reader,true);
+            return getJson.readAdditonal(reader);
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -76,11 +65,9 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,Array
     }
 
     @Override
-    protected void onPostExecute(ArrayList<image> result) {
-        super.onPostExecute(result);
-        callback.onTaskComplete(result);
+    protected void onPostExecute(additionalInfo result) {
+        //super.onPostExecute(result);
+        callback.onAdditionalComplete(result);
     }
-
-
 }
 
