@@ -1,25 +1,9 @@
 package com.example.kenny.myapplication;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
 import android.util.JsonReader;
 import android.util.JsonToken;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.widget.ImageView;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -60,6 +44,7 @@ public class GetJson{
     }
     public ArrayList readMessageArray(JsonReader reader) throws IOException {
         reader.beginArray();
+
         while (reader.hasNext()) {
             picList.add(readMessage(reader));
         }
@@ -71,25 +56,32 @@ public class GetJson{
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
-            if (name.equals("results")) {readMessageArray(reader);}
-            {reader.skipValue();}
+            if (name.equals("photos")) {readPhotos(reader);}
+            else{reader.skipValue();}
         }
         reader.endObject();
-    ;
         return picList;
     }
-
-    public image readMessage(JsonReader reader) throws IOException {
-        image myImage = new image();
-        //Log.e("fuck",reader.toString());
+    public ArrayList readPhotos(JsonReader reader) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
-            //Log.e("readMessage",name);
+            if (name.equals("results")) {readMessageArray(reader);}
+            else{reader.skipValue();}
+        }
+        reader.endObject();
+        return picList;
+    }
+    public image readMessage(JsonReader reader) throws IOException {
+        image myImage = new image();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+
             if (name.equals("urls")) {readUrl(reader, myImage);}
             else if (name.equals("user")) {myImage.set_author(readUser(reader));}
             else if(name.equals("color")){myImage.set_color(reader.nextString());}
-            else if(name.equals("likes")){myImage.set_likes(reader.nextInt());Log.e("fuck2",Integer.toString(myImage.get_likes()));}
+            else if(name.equals("likes")){myImage.set_likes(reader.nextInt());}
             else if(name.equals("id")){myImage.set_id(reader.nextString());}
             else {reader.skipValue();}
         }
@@ -138,13 +130,14 @@ public class GetJson{
     public String[] getLocation(JsonReader reader) throws IOException{
         reader.beginObject();
         String list[] = new String[2];
+
         while (reader.hasNext()) {
             String name = reader.nextName();
             if (name.equals("city")&&reader.peek()!= JsonToken.NULL) {
                     list[0] = reader.nextString();
             }
             else if (name.equals("country")&&reader.peek()!=JsonToken.NULL) {
-                list[1]="";reader.skipValue();
+                list[1]= reader.nextString();
             } else {
                 reader.skipValue();
             }

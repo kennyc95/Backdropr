@@ -23,19 +23,13 @@ import java.util.ArrayList;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder>{
     private ArrayList mData;
-    private additionalInfo info;
     private LayoutInflater mInflater;
     private Context mContext;
-
-    private boolean isLoading;
-    private Activity activity;
-    private OnLoadMoreListener onLoadMoreListener;
-    public RecyclerAdapter(Context context, ArrayList data, RecyclerView recyclerView, Activity activity) {
+    public RecyclerAdapter(Context context, ArrayList data) {
         this.mInflater = LayoutInflater.from(context);
-        //if(data.get(0).get_author())
         this.mData = data;
         this.mContext = context;
-        this.activity = activity;
+
 
 
     }
@@ -48,14 +42,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        //String animal = (String)mData.get(i);
         viewHolder.myImageView.setBackgroundColor(Color.parseColor(((image)mData.get(i)).get_color()));
         Picasso mPicasso = Picasso.with(mContext);
-        mPicasso.setIndicatorsEnabled(true);
         mPicasso.load(((image)mData.get(i)).get_ImageUrl())
                 .into(viewHolder.myImageView);
-
-        // viewHolder.myImageView.setText(animal);
     }
 
     @Override

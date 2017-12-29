@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -17,20 +16,13 @@ import android.support.v7.widget.SearchView;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-
-import com.github.chrisbanes.photoview.PhotoView;
-import com.github.chrisbanes.photoview.PhotoViewAttacher;
+import android.widget.Toast;
 import com.wang.avi.AVLoadingIndicatorView;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,7 +37,6 @@ public class MainActivity extends AppCompatActivity
     private RecyclerAdapter madapter;
     private RecyclerView recyclerView;
     public Activity activity;
-    private ImageView image;
     private SimpleCursorAdapter mSAdapter;
     private String myQuery;
     private  AVLoadingIndicatorView avi;
@@ -57,21 +48,11 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         avi = (AVLoadingIndicatorView)findViewById(R.id.avi);
         picList = new ArrayList<>();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                registerForContextMenu(view);
-                view.showContextMenu();
-                unregisterForContextMenu(view);
-
-            }
-        });
         recyclerView = (RecyclerView)findViewById(R.id.rvNumbers);
         activity = this;
         int numberOfColumns = 2;
         recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), numberOfColumns));
-        RecyclerAdapter madapter = new RecyclerAdapter(getApplicationContext(), picList,recyclerView, this);
+        RecyclerAdapter madapter = new RecyclerAdapter(getApplicationContext(), picList);
         recyclerView.setAdapter(madapter);
         String tourl = "https://api.unsplash.com/photos/?per_page=30&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
                 "2f10d87341c63fecafd0776851";
@@ -83,10 +64,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
 
-            super.onBackPressed();
-
-    }
-    public void onLongClick(){
+        super.onBackPressed();
 
     }
     @Override
@@ -113,7 +91,6 @@ public class MainActivity extends AppCompatActivity
             public boolean onSuggestionClick(int position) {
                 MatrixCursor temp = (MatrixCursor) mSAdapter.getItem(position);
                 myQuery = temp.getString(temp.getColumnIndex("words"));
-                Log.v("tag0",myQuery);
                 searchView.setQuery(myQuery,true);
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
                 MyTaskParams params = new MyTaskParams(true,url);
@@ -150,7 +127,7 @@ public class MainActivity extends AppCompatActivity
                 sb.append("https://api.datamuse.com/sug?s=");
                 sb.append(newText);
                 sb.append("&max=5");
-                task = new getWordsTask(getApplicationContext());
+                task = new getWordsTask();
                 task.execute(sb.toString());
                 return true;
             }
@@ -160,37 +137,42 @@ public class MainActivity extends AppCompatActivity
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                madapter = new RecyclerAdapter(getApplicationContext(), picList, recyclerView, activity);
+                madapter = new RecyclerAdapter(getApplicationContext(), picList);
                 recyclerView.setAdapter(madapter);
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
-                return true;  // Return true to collapse action view
+                return true;
             }
 
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                // Do something when expanded
-                return true;  // Return true to expand action view
+                return true;
             }
         });
 
-        //MenuItemCompat.setOnActionExpandListener(searchItem, expandListener);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public void onTaskComplete(ArrayList<image> picList) {
         avi.hide();
-        if(this.picList.isEmpty()){
+        if(this.picList.isEmpty()==true){
+            Log.e("goeshere","yeah");
             this.picList = picList;
         }
-        madapter = new RecyclerAdapter(getApplicationContext(), picList, recyclerView, this);
-        recyclerView.setAdapter(madapter);
+        if(picList==null || picList.isEmpty()){
+            Toast.makeText(getApplicationContext(),"No Results",Toast.LENGTH_SHORT).show();
+        }else{
+
+            madapter = new RecyclerAdapter(getApplicationContext(), picList);
+            recyclerView.setAdapter(madapter);
+        }
+
     }
     public class getWordsTask extends AsyncTask<String,ArrayList<String>,ArrayList<String>> {
-        private Context context;
-        public getWordsTask(Context context){
-            this.context = context;
+
+        public getWordsTask(){
+
         }
 
         @Override
@@ -239,16 +221,4 @@ public class MainActivity extends AppCompatActivity
             mSAdapter.notifyDataSetChanged();
         }
     }
-
-    //PhotoView imageDatas = (PhotoView) findViewById(R.id.full_image);
-
-    //imageDatas.OnLongClickListener
-    /*imageData.setOnLongClickListener(new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View v) {
-
-            return true;
-        }
-    });*/
-
 }

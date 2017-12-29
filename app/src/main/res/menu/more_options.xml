@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/option1"
-        android:title="A Context Option" />
-    <item android:id="@+id/option2"
-        android:title="Another Context Option" />
+
+    <!-- First button is the initial Fab of the menu -->
+    <!-- Don't need the title in this case, so let it empty -->
+    <item
+        android:id="@+id/main_option"
+        android:icon="@mipmap/ic_download"
+        android:title=""/>
+
+    <!-- Options buttons of the Fab menu -->
+    <item
+        android:id="@+id/option1"
+        android:icon="@mipmap/ic_download"
+        android:title="@string/options_1" />
+
+    <item
+        android:id="@+id/option2"
+        android:icon="@mipmap/ic_download"
+        android:title="@string/options_2" />
+
+
 </menu>
