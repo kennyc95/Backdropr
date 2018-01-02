@@ -7,42 +7,29 @@ package com.example.kenny.myapplication;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.provider.BaseColumns;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.JsonReader;
-import android.view.ContextMenu;
 import android.view.Display;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.wang.avi.AVLoadingIndicatorView;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 
 public class DisplayImage extends AppCompatActivity implements additionalComplete{
+    Bitmap bitmapp;
+    final Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +41,7 @@ public class DisplayImage extends AppCompatActivity implements additionalComplet
             TextView textData = (TextView) findViewById(i);
             textData.setVisibility(View.GONE);
         }
-        final Context context = this;
+
         PhotoView imageData = (PhotoView) findViewById(R.id.full_image);
         imageData.setAdjustViewBounds(true);
         imageData.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -74,7 +61,7 @@ public class DisplayImage extends AppCompatActivity implements additionalComplet
         mPicasso.load(url)
                 .centerCrop()
                 .resize(width,height)
-                .into(imageData);
+                .into(target);
         avi.hide();
         TextView textData = (TextView)findViewById(R.id.author);
         textData.setText(" "+intent.getStringExtra("NAME"));
@@ -99,15 +86,19 @@ public class DisplayImage extends AppCompatActivity implements additionalComplet
                 }
             }
         });
+
         com.github.clans.fab.FloatingActionButton button = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                com.github.clans.fab.FloatingActionMenu menu = (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.menu);
+                menu.close(true);
                setBackground task = new setBackground(context);
-                task.execute(url);
+                task.execute(bitmapp);
             }
         });
     }
+
     @Override
     public void onAdditionalComplete(additionalInfo addInfo) {
         TextView textData;
@@ -121,24 +112,26 @@ public class DisplayImage extends AppCompatActivity implements additionalComplet
         }else{textData.setText(" Location: "+addInfo.get_city()+", "+addInfo.get_country());}
 
     }
-    public class setBackground extends AsyncTask<String,String,String> {
+
+
+    public class setBackground extends AsyncTask<Bitmap,String,String> {
         private Context context;
         public setBackground(Context context){
             this.context = context;
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String doInBackground(Bitmap... params) {
             try {
-                Bitmap result=Picasso.with(context).load(params[0]).get();
+                Bitmap result=params[0];
                 WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
                 wallpaperManager.setBitmap(result);
-                return "Set as background success";
+                return "Set as Wallpaper success";
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
-            return "Set as background failed";
+            return "Set as Wallpaper failed";
         }
 
         @Override
@@ -148,4 +141,27 @@ public class DisplayImage extends AppCompatActivity implements additionalComplet
             //super.onPostExecute(result);
         }
     }
+    private Target target = new Target() {
+
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            // Bitmap is loaded, use image here
+            PhotoView imageData = (PhotoView) findViewById(R.id.full_image);
+            imageData.setImageBitmap(bitmap);
+            bitmapp = bitmap;
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+
+    };
+
 }

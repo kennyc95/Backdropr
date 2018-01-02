@@ -156,8 +156,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onTaskComplete(ArrayList<image> picList) {
         avi.hide();
+
         if(this.picList.isEmpty()==true){
-            Log.e("goeshere","yeah");
             this.picList = picList;
         }
         if(picList==null || picList.isEmpty()){

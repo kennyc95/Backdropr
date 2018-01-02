@@ -47,19 +47,12 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,Array
         boolean isSearch = params[0].search;
         String url = params[0].url;
         try {
-            Log.e("myurl",url);
-            Log.e("fuckme","here");
             urlConnection = new URL(url);
-            Log.e("fuckme","here2");
             connection = (HttpURLConnection)urlConnection.openConnection();
             connection.setReadTimeout(10000);
-            Log.e("fuckme","here3");
             InputStream stream = connection.getInputStream();
-            Log.e("fuckme","here4");
             reader = new JsonReader(new InputStreamReader(stream));
-            Log.e("fuckme","here5");
             GetJson getJson = new GetJson(reader,isSearch);
-            Log.e("fuckme","here6");
             return getJson.partTwo();
 
         } catch (MalformedURLException e) {

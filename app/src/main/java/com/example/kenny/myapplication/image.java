@@ -1,6 +1,7 @@
 package com.example.kenny.myapplication;
 
 
+import static android.R.attr.bitmap;
 
 /**
  * Created by kenny on 2017-10-02.
