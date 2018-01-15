@@ -41,7 +41,7 @@ public class getAdditionalInfo extends AsyncTask<String,additionalInfo,additiona
             connection = (HttpURLConnection)urlConnection.openConnection();
             InputStream stream = connection.getInputStream();
             reader = new JsonReader(new InputStreamReader(stream));
-            GetJson getJson = new GetJson(reader,true);
+            GetJson getJson = new GetJson(reader,true,null);
             return getJson.readAdditonal(reader);
 
         } catch (MalformedURLException e) {

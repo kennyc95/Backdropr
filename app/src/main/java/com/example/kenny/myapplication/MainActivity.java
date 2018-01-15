@@ -33,13 +33,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements TaskComplete {
-    private ArrayList<image> picList;
     private RecyclerAdapter madapter;
     private RecyclerView recyclerView;
     public Activity activity;
     private SimpleCursorAdapter mSAdapter;
     private String myQuery;
     private  AVLoadingIndicatorView avi;
+    private int page;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +47,29 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         avi = (AVLoadingIndicatorView)findViewById(R.id.avi);
-        picList = new ArrayList<>();
         recyclerView = (RecyclerView)findViewById(R.id.rvNumbers);
         activity = this;
         int numberOfColumns = 2;
+        page = 2;
         recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), numberOfColumns));
-        RecyclerAdapter madapter = new RecyclerAdapter(getApplicationContext(), picList);
+        getRecycler.save_View(recyclerView);
+        madapter = new RecyclerAdapter(getApplicationContext(), new ArrayList<>());
+        madapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                avi.setVisibility(View.VISIBLE);
+                String tourl = "https://api.unsplash.com/photos/?per_page=30&page="+page+"&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
+                        "2f10d87341c63fecafd0776851";
+                MyTaskParams params = new MyTaskParams(false,tourl,madapter);
+                new ImageLoadTask(MainActivity.this).execute(params);
+                page++;
+            }
+        });
         recyclerView.setAdapter(madapter);
-        String tourl = "https://api.unsplash.com/photos/?per_page=30&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
+        String tourl = "https://api.unsplash.com/photos/?per_page=30&page=1&client_id=a6c0389a37254f023d0c1a63b813fd63fafafb" +
                 "2f10d87341c63fecafd0776851";
-
-        MyTaskParams params = new MyTaskParams(false,tourl);
+        MyTaskParams params = new MyTaskParams(false,tourl,madapter);
+        avi.setVisibility(View.VISIBLE);
         new ImageLoadTask(MainActivity.this).execute(params);
     }
 
@@ -93,8 +105,20 @@ public class MainActivity extends AppCompatActivity
                 myQuery = temp.getString(temp.getColumnIndex("words"));
                 searchView.setQuery(myQuery,true);
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+myQuery;
-                MyTaskParams params = new MyTaskParams(true,url);
-                avi.show();
+                madapter = new RecyclerAdapter(getApplicationContext(), new ArrayList<>());
+                MyTaskParams params = new MyTaskParams(true,url,madapter);
+                madapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+                    @Override
+                    public void onLoadMore() {
+                        avi.setVisibility(View.VISIBLE);
+                        String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page="+page+"&query="+myQuery;
+                        MyTaskParams params = new MyTaskParams(true,url,madapter);
+                        new ImageLoadTask(MainActivity.this).execute(params);
+                        page++;
+                    }
+                });
+                recyclerView.setAdapter(madapter);
+                avi.setVisibility(View.VISIBLE);
                 new ImageLoadTask(MainActivity.this).execute(params);
                 return true;
             }
@@ -113,8 +137,20 @@ public class MainActivity extends AppCompatActivity
             public boolean onQueryTextSubmit(String queryText) {
                 searchView.clearFocus();
                 String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page=1&query="+queryText;
-                MyTaskParams params = new MyTaskParams(true,url);
-                avi.show();
+                madapter = new RecyclerAdapter(getApplicationContext(), new ArrayList<>());
+                MyTaskParams params = new MyTaskParams(true,url,madapter);
+                madapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+                    @Override
+                    public void onLoadMore() {
+                        avi.setVisibility(View.VISIBLE);
+                        String url = "https://api.unsplash.com/search/?client_id=a6c0389a37254f023d0c1a63b813fd63fafafb2f10d87341c63fecafd0776851&per_page=30&page="+page+"&query="+myQuery;
+                        MyTaskParams params = new MyTaskParams(true,url,madapter);
+                        new ImageLoadTask(MainActivity.this).execute(params);
+                        page++;
+                    }
+                });
+                recyclerView.setAdapter(madapter);
+                avi.setVisibility(View.VISIBLE);
                 new ImageLoadTask(MainActivity.this).execute(params);
                 return true;
             }
@@ -137,7 +173,7 @@ public class MainActivity extends AppCompatActivity
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                madapter = new RecyclerAdapter(getApplicationContext(), picList);
+                //madapter = new RecyclerAdapter(getApplicationContext(), picList);
                 recyclerView.setAdapter(madapter);
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
@@ -154,18 +190,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onTaskComplete(ArrayList<image> picList) {
-        avi.hide();
-
-        if(this.picList.isEmpty()==true){
-            this.picList = picList;
+    public void onTaskComplete(RecyclerAdapter madapter, boolean isSearch) {
+        avi.setVisibility(View.INVISIBLE);
+        if(madapter!=null){
+            this.madapter = madapter;
         }
-        if(picList==null || picList.isEmpty()){
+        if(madapter==null || madapter.mData==null){
             Toast.makeText(getApplicationContext(),"No Results",Toast.LENGTH_SHORT).show();
-        }else{
-
-            madapter = new RecyclerAdapter(getApplicationContext(), picList);
-            recyclerView.setAdapter(madapter);
         }
 
     }

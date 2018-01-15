@@ -3,6 +3,8 @@ package com.example.kenny.myapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -28,9 +30,12 @@ import com.google.android.gms.tasks.Task;
  */
 
 
-public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,ArrayList<image>> {
+public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,RecyclerAdapter> {
     private Context context;
     private TaskComplete callback;
+    private boolean isSearch;
+    private RecyclerAdapter madapter;
+
 
     public ImageLoadTask(Context context){
         this.context = context;
@@ -38,21 +43,21 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,Array
     }
 
     @Override
-    protected ArrayList doInBackground(MyTaskParams... params) {
+    protected RecyclerAdapter doInBackground(MyTaskParams... params) {
 
         HttpURLConnection connection = null;
         JsonReader reader = null;
         URL urlConnection;
-        ArrayList jsonUrl = new ArrayList(0);
-        boolean isSearch = params[0].search;
+        isSearch = params[0].search;
         String url = params[0].url;
+        this.madapter = params[0].madapter;
         try {
             urlConnection = new URL(url);
             connection = (HttpURLConnection)urlConnection.openConnection();
             connection.setReadTimeout(10000);
             InputStream stream = connection.getInputStream();
             reader = new JsonReader(new InputStreamReader(stream));
-            GetJson getJson = new GetJson(reader,isSearch);
+            GetJson getJson = new GetJson(reader,isSearch,madapter);
             return getJson.partTwo();
 
         } catch (MalformedURLException e) {
@@ -76,10 +81,10 @@ public class ImageLoadTask extends AsyncTask<MyTaskParams,ArrayList<image>,Array
     }
 
     @Override
-    protected void onPostExecute(ArrayList<image> result) {
+    protected void onPostExecute(RecyclerAdapter result) {
         //super.onPostExecute(result);
         //if(result!=null){
-            callback.onTaskComplete(result);
+            callback.onTaskComplete(result,isSearch);
         //}
 //
     }

@@ -1,10 +1,16 @@
 package com.example.kenny.myapplication;
 
 
+import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.util.JsonReader;
 import android.util.JsonToken;
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
+
+import static com.google.android.gms.internal.zzagz.runOnUiThread;
 
 /**
  * Created by kenny on 2017-10-02.
@@ -14,16 +20,17 @@ public class GetJson{
     ArrayList<image> picList;
     JsonReader reader;
     boolean isSearch;
-    public GetJson(JsonReader reader, boolean isSearch){
-
-        picList = new ArrayList<image>();
+    RecyclerView recyclerView;
+    private RecyclerAdapter madapter;
+    public GetJson(JsonReader reader, boolean isSearch, RecyclerAdapter madapter){
         this.reader = reader;
         this.isSearch= isSearch;
+        this.madapter = madapter;
+        recyclerView = getRecycler.get_View();
     }
 
 
-    public ArrayList<image> partTwo(){
-
+    public RecyclerAdapter partTwo(){
         if(isSearch==false) {
             try {
 
@@ -32,7 +39,6 @@ public class GetJson{
                 e.printStackTrace();
             }
         }else if(isSearch == true){
-
             try {
                 readResultsArray(reader);
             } catch (IOException e) {
@@ -40,19 +46,25 @@ public class GetJson{
             }
 
         }
-        return picList;
+        return madapter;
     }
-    public ArrayList readMessageArray(JsonReader reader) throws IOException {
+    public void readMessageArray(JsonReader reader) throws IOException {
         reader.beginArray();
 
         while (reader.hasNext()) {
-            picList.add(readMessage(reader));
+            madapter.mData.add(readMessage(reader));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    madapter.notifyItemInserted(madapter.mData.size()-1);
+                }
+            });
+
+
         }
         reader.endArray();
-
-        return picList;
     }
-    public ArrayList readResultsArray(JsonReader reader) throws IOException {
+    public void readResultsArray(JsonReader reader) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -60,9 +72,8 @@ public class GetJson{
             else{reader.skipValue();}
         }
         reader.endObject();
-        return picList;
     }
-    public ArrayList readPhotos(JsonReader reader) throws IOException {
+    public void readPhotos(JsonReader reader) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -70,7 +81,6 @@ public class GetJson{
             else{reader.skipValue();}
         }
         reader.endObject();
-        return picList;
     }
     public image readMessage(JsonReader reader) throws IOException {
         image myImage = new image();
@@ -86,7 +96,6 @@ public class GetJson{
             else {reader.skipValue();}
         }
         reader.endObject();
-
         return myImage;
     }
 

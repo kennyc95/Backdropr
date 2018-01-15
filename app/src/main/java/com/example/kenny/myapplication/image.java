@@ -1,7 +1,7 @@
 package com.example.kenny.myapplication;
 
 
-import static android.R.attr.bitmap;
+import android.graphics.Bitmap;
 
 /**
  * Created by kenny on 2017-10-02.
@@ -29,6 +29,7 @@ public class image {
     public String get_large(){return largeUrl;}
     public String get_id(){return id;}
     public int get_likes(){return likes;}
+
 
 
     public void set_ImageUrl(String imageUrl){

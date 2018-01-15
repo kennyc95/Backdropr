@@ -22,16 +22,14 @@ import java.util.ArrayList;
 
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder>{
-    private ArrayList mData;
+    public ArrayList mData;
     private LayoutInflater mInflater;
     private Context mContext;
+    private OnLoadMoreListener OnLoadMoreListener;
     public RecyclerAdapter(Context context, ArrayList data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         this.mContext = context;
-
-
-
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
@@ -39,13 +37,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
-
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener){
+        this.OnLoadMoreListener = onLoadMoreListener;
+    }
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         viewHolder.myImageView.setBackgroundColor(Color.parseColor(((image)mData.get(i)).get_color()));
         Picasso mPicasso = Picasso.with(mContext);
         mPicasso.load(((image)mData.get(i)).get_ImageUrl())
                 .into(viewHolder.myImageView);
+        if(i==mData.size()-1){
+            OnLoadMoreListener.onLoadMore();
+        }
     }
 
     @Override
@@ -55,6 +58,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         }
         return mData.size();
     }
+
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView myImageView;
 
@@ -80,6 +85,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         intent.putExtra("LIKES",getItem(position).get_likes());
         intent.putExtra("COLOR",getItem(position).get_color());
         intent.putExtra("ID",getItem(position).get_id());
+
         mContext.startActivity(intent);
     }
 

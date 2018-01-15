@@ -7,5 +7,5 @@ import java.util.ArrayList;
  */
 
 public interface TaskComplete {
-    public void onTaskComplete(ArrayList<image> picList);
+    public void onTaskComplete(RecyclerAdapter madapter, boolean isSearch);
 }
